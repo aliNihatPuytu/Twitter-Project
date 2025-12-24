@@ -1,0 +1,1599 @@
+:root {
+  --bg: #000000;
+  --text: #e7e9ea;
+  --muted: #71767b;
+  --border: #2f3336;
+  --hover: rgba(231, 233, 234, 0.08);
+  --panel: #000000;
+  --soft: #202327;
+  --blue: #1d9bf0;
+  --red: #f4212e;
+
+  --header-bg: rgba(0, 0, 0, 0.55);
+  --header-bg-scrolled: rgba(0, 0, 0, 0.86);
+  --menu-bg: rgba(0, 0, 0, 0.92);
+  --menu-border: rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --text: #0f1419;
+  --muted: #536471;
+  --border: #cfd9de;
+  --hover: rgba(15, 20, 25, 0.08);
+  --panel: #ffffff;
+  --soft: #eff3f4;
+  --blue: #1d9bf0;
+  --red: #f4212e;
+
+  --header-bg: rgba(255, 255, 255, 0.75);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.92);
+  --menu-bg: rgba(255, 255, 255, 0.98);
+  --menu-border: rgba(15, 20, 25, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+/* =============== Layout =============== */
+
+.xRoot {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.xLayout {
+  width: 1260px;
+  display: grid;
+  grid-template-columns: 300px 1fr 360px;
+  min-height: 100vh;
+}
+
+@media (max-width: 1100px) {
+  .xLayout {
+    grid-template-columns: 280px 1fr;
+  }
+  .xRight {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .xLayout {
+    grid-template-columns: 1fr;
+  }
+  .xLeft {
+    display: none;
+  }
+}
+
+.xLeft {
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.xLeftInner {
+  height: 100%;
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.xBrandBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px 0 8px;
+}
+
+.xBrandBtn:hover {
+  background: var(--hover);
+}
+
+.xBrandLogo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
+
+.xNav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.xNavItem {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.xNavItem:hover {
+  background: var(--hover);
+}
+
+.xNavItem.active,
+.xNavItem[aria-current="page"] {
+  font-weight: 900;
+}
+
+.xNavIcon {
+  width: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.xPostBtn {
+  margin-top: 12px;
+  height: 52px;
+  border-radius: 999px;
+  border: 0;
+  background: #fff;
+  color: #0f1419;
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+:root[data-theme="light"] .xPostBtn {
+  background: #0f1419;
+  color: #fff;
+}
+
+.xLeftBottom {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.xProfileBtn {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.xProfileBtn:hover {
+  background: var(--hover);
+}
+
+.xAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(29, 155, 240, 0.9), rgba(231, 233, 234, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="light"] .xAvatar {
+  border: 1px solid rgba(15, 20, 25, 0.12);
+}
+
+.xProfileMeta {
+  text-align: left;
+  line-height: 1.2;
+}
+
+.xProfileName {
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.xProfileHandle {
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.xProfileDots {
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.xCenter {
+  border-right: 1px solid var(--border);
+  min-height: 100vh;
+}
+
+.xCenterCol {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.xCenterHeader {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.xCenterHeader.isScrolled {
+  background: var(--header-bg-scrolled);
+}
+
+.xTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 53px;
+}
+
+.xTab {
+  height: 53px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+}
+
+.xTab:hover {
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.xTab.isActive {
+  color: var(--text);
+}
+
+.xTab.isActive::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+/* =============== Composer =============== */
+
+.xComposer {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.xComposerRow {
+  display: flex;
+  gap: 12px;
+}
+
+.xAvatarSm {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(29, 155, 240, 0.9), rgba(231, 233, 234, 0.12));
+  flex: 0 0 auto;
+}
+
+.xComposerMain {
+  flex: 1;
+}
+
+.xComposerInput {
+  width: 100%;
+  min-height: 68px;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.35;
+  padding-top: 6px;
+}
+
+.xComposerBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  border-top: 1px solid rgba(127, 127, 127, 0.22);
+  padding-top: 10px;
+}
+
+.xComposerIcons {
+  display: flex;
+  gap: 6px;
+  color: var(--blue);
+}
+
+.xIconBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  cursor: pointer;
+}
+
+.xIconBtn:hover {
+  background: rgba(29, 155, 240, 0.12);
+}
+
+.xIconBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.xSendBtn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.xSendBtn:disabled {
+  background: rgba(127, 127, 127, 0.22);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.xMiniPanel {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  padding: 10px;
+  color: var(--text);
+}
+
+.xMiniPanelTitle {
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.xMiniRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.xChip {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.xChip:hover {
+  background: var(--hover);
+}
+
+.xMediaGrid {
+  margin-top: 10px;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  border-radius: 16px;
+  overflow: hidden;
+  display: grid;
+  gap: 2px;
+  background: rgba(127, 127, 127, 0.06);
+}
+
+.xMediaGrid.c1 {
+  grid-template-columns: 1fr;
+}
+.xMediaGrid.c2 {
+  grid-template-columns: 1fr 1fr;
+}
+.xMediaGrid.c3,
+.xMediaGrid.c4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.xMediaGrid.c3 .i1 {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+}
+
+.xMediaCell {
+  position: relative;
+  min-height: 160px;
+}
+.xMediaGrid.c1 .xMediaCell {
+  min-height: 260px;
+  max-height: 520px;
+}
+
+.xMediaImg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* =============== Feed / Tweet =============== */
+
+.xFeed {
+  display: flex;
+  flex-direction: column;
+}
+
+.xTweet {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 120ms ease;
+}
+
+.xTweet:hover {
+  background: rgba(127, 127, 127, 0.06);
+}
+
+.xTweetBody {
+  flex: 1;
+}
+
+.xTweetTopRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.xTweetName {
+  font-weight: 900;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.xTweetHandle {
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.xTweetDot {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.xTweetTime {
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.xMoreBtn {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xMoreBtn:hover {
+  background: rgba(29, 155, 240, 0.12);
+  color: var(--blue);
+}
+
+.xTweetText {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+
+.xTweetActions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  max-width: 420px;
+}
+
+.xActBtn {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.xActBtn:hover {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.xActBtn[data-action="comment"]:hover {
+  color: var(--blue);
+  background: rgba(29, 155, 240, 0.12);
+}
+.xActBtn[data-action="retweet"]:hover {
+  color: #00ba7c;
+  background: rgba(0, 186, 124, 0.14);
+}
+.xActBtn[data-action="like"]:hover {
+  color: #f91880;
+  background: rgba(249, 24, 128, 0.14);
+}
+.xActBtn[data-action="share"]:hover {
+  color: var(--blue);
+  background: rgba(29, 155, 240, 0.12);
+}
+
+.xActBtn.isLiked {
+  color: #f91880;
+}
+
+.xActCount {
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.xCommentBox {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(127, 127, 127, 0.06);
+}
+
+.xCommentInput {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0 12px;
+  outline: none;
+  font-weight: 700;
+}
+
+.xCommentRow {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.xSmallBtn {
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 14px;
+}
+
+.xSmallBtn:hover {
+  background: var(--hover);
+}
+
+.xSmallPrimary {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.xSmallPrimary:hover {
+  background: rgba(29, 155, 240, 0.92);
+}
+
+/* =============== Tweet Menu (3 dots) =============== */
+
+.xMenu {
+  position: absolute;
+  right: 0;
+  top: 36px;
+  width: 230px;
+  border: 1px solid var(--menu-border);
+  background: var(--menu-bg);
+  backdrop-filter: blur(14px);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.35);
+}
+
+.xMenuItem {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 800;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.xMenuItem:hover {
+  background: var(--hover);
+}
+
+.xMenuItem.danger {
+  color: var(--red);
+}
+
+/* =============== Right Rail =============== */
+
+.xRight {
+  padding: 0 14px;
+}
+
+.xRightInner {
+  position: sticky;
+  top: 0;
+  padding: 8px 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100vh;
+  overflow: auto;
+}
+
+.xSearchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.xSearchBar {
+  height: 44px;
+  border-radius: 999px;
+  background: var(--soft);
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  flex: 1;
+  border: 1px solid transparent;
+}
+
+:root[data-theme="light"] .xSearchBar {
+  border: 1px solid var(--border);
+}
+
+.xSearchIcon {
+  justify-self: center;
+  color: var(--muted);
+}
+
+.xSearchInput {
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  font-size: 15px;
+  padding-right: 14px;
+}
+
+.xSettingsRow {
+  display: flex;
+  gap: 8px;
+}
+
+.xPillBtn {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xPillBtn:hover {
+  background: var(--hover);
+}
+
+.xCard {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  overflow: visible;
+}
+
+.xCardHeader {
+  font-size: 20px;
+  font-weight: 900;
+  padding: 14px 16px 10px;
+}
+
+.xCardBody {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.xCardText {
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.35;
+  font-size: 14px;
+}
+
+.xPrimaryBtn {
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--blue);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  width: fit-content;
+  padding: 0 16px;
+}
+
+.xList {
+  display: flex;
+  flex-direction: column;
+}
+
+.xListItem {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 1fr 28px;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.xListItem:hover {
+  background: var(--hover);
+}
+
+.xListMeta {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.xListTitle {
+  font-size: 15px;
+  font-weight: 900;
+  margin: 2px 0;
+}
+
+.xListRight {
+  display: grid;
+  place-items: start end;
+  color: var(--muted);
+}
+
+.xCardLink {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  color: var(--blue);
+  font-weight: 900;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.xCardLink:hover {
+  background: var(--hover);
+}
+
+.xFollowList {
+  display: flex;
+  flex-direction: column;
+}
+
+.xFollowRow {
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.xFollowRow:hover {
+  background: var(--hover);
+}
+
+.xFollowAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(231, 233, 234, 0.14), rgba(29, 155, 240, 0.5));
+  border: 1px solid rgba(127, 127, 127, 0.22);
+}
+
+.xFollowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xFollowNameRow {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.xFollowName {
+  font-weight: 900;
+  font-size: 15px;
+}
+
+.xVerified {
+  color: var(--blue);
+}
+
+.xFollowHandle {
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.xFollowBtn {
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #fff;
+  background: #fff;
+  color: #000;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 14px;
+}
+
+:root[data-theme="light"] .xFollowBtn {
+  border: 1px solid #0f1419;
+  background: #0f1419;
+  color: #fff;
+}
+
+.xFollowBtn.isFollowing {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.xRightFooter {
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+/* =============== Guest hint =============== */
+
+.xGuestHint {
+  margin: 16px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.xGuestHint:hover {
+  background: var(--hover);
+}
+
+/* =============== Auth Modal =============== */
+
+.xModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(91, 112, 131, 0.55);
+  display: grid;
+  place-items: center;
+  z-index: 999;
+}
+
+.xModal {
+  width: 600px;
+  max-width: calc(100vw - 28px);
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  padding: 14px 18px 18px;
+}
+
+.xModalTop {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+}
+
+.xModalClose {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xModalClose:hover {
+  background: var(--hover);
+}
+
+.xModalLogo {
+  width: 26px;
+  height: 26px;
+  justify-self: center;
+  object-fit: contain;
+}
+
+.xModalTitle {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 10px 0 14px;
+  letter-spacing: -0.02em;
+}
+
+.xModalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.xFloatField {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  padding: 0 12px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.xFloatField:hover {
+  border-color: rgba(127, 127, 127, 0.6);
+}
+
+.xFloatField.isFocused {
+  border-color: var(--blue);
+}
+
+.xFloatLabel {
+  position: absolute;
+  left: 12px;
+  top: 18px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: transform 120ms ease, font-size 120ms ease, top 120ms ease, color 120ms ease;
+}
+
+.xFloatField.isFocused .xFloatLabel {
+  color: var(--blue);
+}
+
+.xFloatField.isFocused .xFloatLabel,
+.xFloatField.isFilled .xFloatLabel {
+  top: 10px;
+  font-size: 12px;
+}
+
+.xFloatInput {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  height: 26px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.xModalError {
+  color: var(--red);
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.xComposeError {
+  color: var(--red);
+  font-weight: 800;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.xModalPrimary {
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--blue);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  width: 100%;
+}
+
+.xModalPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.xModalBottomRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.xMuted {
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.xInlineLink {
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0;
+}
+
+.xInlineLink:hover {
+  text-decoration: underline;
+}
+
+/* =============== Auth Page (Happening now) =============== */
+
+.xAuthShell {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+}
+
+.xAuthGrid {
+  width: 1260px;
+  padding: 48px 16px 24px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (max-width: 1100px) {
+  .xAuthGrid {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-top: 24px;
+  }
+}
+
+.xAuthLeft {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 520px;
+}
+
+.xAuthBigLogo {
+  width: 460px;
+  max-width: 58vw;
+  height: auto;
+  opacity: 0.95;
+}
+
+@media (max-width: 1100px) {
+  .xAuthLeft {
+    min-height: 260px;
+  }
+  .xAuthBigLogo {
+    width: 280px;
+    max-width: 80vw;
+  }
+}
+
+.xAuthRight {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.xAuthH1 {
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: -0.8px;
+  line-height: 1.02;
+  margin: 0 0 6px;
+}
+
+@media (max-width: 1100px) {
+  .xAuthH1 {
+    font-size: 46px;
+  }
+}
+
+.xAuthH2 {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0 0 8px;
+}
+
+.xAuthPrimaryBtn {
+  width: 300px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid #fff;
+  background: #fff;
+  color: #000;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+:root[data-theme="light"] .xAuthPrimaryBtn {
+  border: 1px solid #0f1419;
+  background: #0f1419;
+  color: #fff;
+}
+
+.xAuthOutlineBtn {
+  width: 300px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.xAuthFinePrint {
+  width: 300px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.xRightInner {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.xRightInner::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Tweet menu kesin X gibi dursun */
+.xMenu {
+  display: flex;
+  flex-direction: column;
+}
+
+.xMenuItem {
+  display: flex;
+}
+
+/* Composer mini panel */
+.xMiniPanel {
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.xMiniPanelTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.xMiniPanelTitle {
+  font-weight: 950;
+  font-size: 14px;
+}
+
+.xMiniClose {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.xMiniClose:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.xMiniRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.xMiniCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xMiniHint {
+  margin-top: 8px;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.xChip {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.xChip:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.xChip.isActive {
+  border-color: rgba(29, 155, 240, 0.65);
+  background: rgba(29, 155, 240, 0.12);
+}
+
+.xCommentBox {
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.xCommentInput {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  padding: 0 12px;
+  font-weight: 800;
+}
+
+.xCommentRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.xSmallBtn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.xSmallBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.xSmallPrimary {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+/* Media remove button */
+.xMediaCell {
+  position: relative;
+}
+
+.xMediaRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+
+.xMediaRemove:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.xActBtn.isReposted {
+  color: #00ba7c;
+}
+
+.xErr {
+  padding: 12px 16px;
+  color: var(--red);
+  font-weight: 900;
+  border-bottom: 1px solid var(--border);
+}
+
+.xSkeleton {
+  height: 84px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(127, 127, 127, 0.06);
+}
+
+.xLeftSignIn {
+  width: 100%;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+  margin: 0 0 10px;
+}
+
+.xLeftSignIn:hover {
+  background: var(--hover);
+}
+
+.xTweetMetaRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.xTweet .xTweetMetaRow button,
+.xTweet .xTweetMetaRow .xMetaBtn {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+  padding: 0;
+  color: var(--muted);
+  font: inherit;
+  line-height: 1.2;
+  cursor: pointer;
+  appearance: none;
+}
+
+.xTweet .xTweetMetaRow button:hover,
+.xTweet .xTweetMetaRow .xMetaBtn:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.xTweet .xTweetMetaRow button:focus,
+.xTweet .xTweetMetaRow .xMetaBtn:focus {
+  outline: none;
+}
+
+.xTweet .xTweetMetaRow .xMetaBtn.active {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.xActCount.isClickable {
+  cursor: pointer;
+}
+
+.xActGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.xActCountBtn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.xActCountBtn:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.xTweetDetails {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(127, 127, 127, 0.05);
+}
+
+.xDetailHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.xMetaCloseIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xMetaCloseIcon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.xCommentComposer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.xCommentComposer .xCommentInput {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  height: auto;
+  min-height: 42px;
+}
+
+.xCommentComposer .xCommentInput:focus {
+  border-color: rgba(29, 155, 240, 0.8);
+}
+
+.xCommentActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.xDetailHint {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 6px 2px;
+}
+
+.xDetailList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.xDetailItem {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.xDetailTitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.xDetailText {
+  font-size: 14px;
+  color: var(--text);
+}

@@ -1,0 +1,56 @@
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --text: #0f1419;
+  --muted: #536471;
+  --border: #cfd9de;
+  --hover: rgba(15, 20, 25, 0.08);
+  --panel: #ffffff;
+  --soft: #f7f9f9;
+  --blue: #1d9bf0;
+  --red: #f4212e;
+}
+
+.xSearchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.xSearchRow .xSearchBar {
+  flex: 1;
+}
+
+.xSettingsRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xPillBtn {
+  height: 34px;
+  min-width: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.xPillBtn:hover {
+  background: var(--hover);
+}
+
+.xPillBtn:active {
+  transform: scale(0.98);
+}
+
+.xPillBtnIcon {
+  width: 36px;
+  padding: 0;
+}

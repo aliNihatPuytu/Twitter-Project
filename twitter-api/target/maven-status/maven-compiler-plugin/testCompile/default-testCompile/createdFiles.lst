@@ -1,0 +1,6 @@
+com\twitterapi\service\AuthServiceImplTest.class
+com\twitterapi\service\LikeServiceImplTest.class
+com\twitterapi\service\TweetServiceImplTest.class
+com\twitterapi\service\JwtServiceTest.class
+com\twitterapi\service\RetweetServiceImplTest.class
+com\twitterapi\service\CommentServiceImplTest.class
