@@ -1,65 +1,56 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiHeart, FiMessageCircle, FiRepeat, FiShare, FiMoreHorizontal } from "react-icons/fi";
+import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiRepeat, FiShare } from "react-icons/fi";
 import { useAppSettings } from "../context/AppSettingsContext.jsx";
 import {
-  likeTweet,
-  dislikeTweet,
+  createComment,
+  deleteComment,
   createRetweet,
   deleteRetweet,
-  createComment,
   fetchComments,
-  fetchRetweets,
   fetchLikes,
+  fetchRetweets,
+  likeTweet,
+  dislikeTweet,
+  deleteTweet,
 } from "../services/tweetApi.js";
 
-function toMillis(v) {
-  if (v == null) return Date.now();
-  if (typeof v === "number") return v;
-  const n = Number(v);
-  if (!Number.isNaN(n)) return n;
-  const t = new Date(v).getTime();
-  return Number.isNaN(t) ? Date.now() : t;
-}
-
-function timeAgo(ts) {
-  const base = toMillis(ts);
-  const sec = Math.floor((Date.now() - base) / 1000);
-  if (sec < 60) return `${sec}s`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `${h}h`;
-  const d = Math.floor(h / 24);
-  return `${d}d`;
+function timeAgo(dt) {
+  try {
+    if (!dt) return "";
+    const d = new Date(dt);
+    const s = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m}m`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h`;
+    const day = Math.floor(h / 24);
+    return `${day}d`;
+  } catch {
+    return "";
+  }
 }
 
 export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDeleted }) {
-  const { t, lang } = useAppSettings();
+  const { t } = useAppSettings();
+  const ref = useRef(null);
 
-  const tSafe = (key, fallback) => {
-    const v = t?.(key);
-    return v && v !== key ? v : fallback;
-  };
+  const tweetId = tweet?.id;
+  const meId = Number(localStorage.getItem("userId") || "0");
+  const isMine = Boolean(tweet?.userId && meId && Number(tweet.userId) === meId);
 
-  const tweetId = tweet?.id ?? tweet?.tweetId ?? tweet?._id;
-
-  const [liked, setLiked] = useState(Boolean(tweet?.liked ?? tweet?.isLiked));
-  const [reposted, setReposted] = useState(Boolean(tweet?.reposted ?? tweet?.isReposted));
-  const [retweetId, setRetweetId] = useState(tweet?.retweetId ?? null);
-
-  const [likeCount, setLikeCount] = useState(Number(tweet?.likeCount ?? 0));
-  const [repostCount, setRepostCount] = useState(Number(tweet?.repostCount ?? tweet?.retweetCount ?? 0));
-  const [commentCount, setCommentCount] = useState(Number(tweet?.commentCount ?? 0));
+  const authorName = tweet?.username || "user";
+  const authorHandle = (tweet?.username || "user").toLowerCase();
 
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const [commentText, setCommentText] = useState("");
+  const [showCommentComposer, setShowCommentComposer] = useState(false);
 
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [likesOpen, setLikesOpen] = useState(false);
   const [repostsOpen, setRepostsOpen] = useState(false);
 
-  const [showCommentComposer, setShowCommentComposer] = useState(false);
-
-  const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [likes, setLikes] = useState([]);
   const [reposts, setReposts] = useState([]);
@@ -68,52 +59,20 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
   const [loadingLikes, setLoadingLikes] = useState(false);
   const [loadingReposts, setLoadingReposts] = useState(false);
 
-  const ref = useRef(null);
+  const [commentCount, setCommentCount] = useState(Number(tweet?.commentCount || 0));
+  const [likeCount, setLikeCount] = useState(Number(tweet?.likeCount || 0));
+  const [repostCount, setRepostCount] = useState(Number(tweet?.retweetCount || tweet?.repostCount || 0));
 
-  const authorName = tweet?.authorName || tweet?.username || "user";
-  const authorHandle = (tweet?.authorHandle || tweet?.handle || tweet?.username || "user").toLowerCase();
+  const [liked, setLiked] = useState(false);
+  const [reposted, setReposted] = useState(false);
+  const [retweetId, setRetweetId] = useState(null);
 
-  const isMine = Boolean(tweet?.isMine);
-
-  const createdAt = tweet?.createdAt ?? tweet?.created_at ?? tweet?.date;
-
-  const bodyText = useMemo(() => {
-    const v = (tweet?.content ?? tweet?.text ?? "").toString();
-    return v.trim();
-  }, [tweet?.content, tweet?.text]);
+  const tSafe = (key, fallback) => {
+    const v = t?.(key);
+    return v && v !== key ? v : fallback;
+  };
 
   const requireAuth = () => onRequireAuth?.("signin");
-
-  useEffect(() => {
-    const onDoc = (e) => {
-      if (!ref.current) return;
-      if (ref.current.contains(e.target)) return;
-      setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
-
-  useEffect(() => {
-    setLiked(Boolean(tweet?.liked ?? tweet?.isLiked));
-    setReposted(Boolean(tweet?.reposted ?? tweet?.isReposted));
-    setRetweetId(tweet?.retweetId ?? null);
-
-    setLikeCount(Number(tweet?.likeCount ?? 0));
-    setRepostCount(Number(tweet?.repostCount ?? tweet?.retweetCount ?? 0));
-    setCommentCount(Number(tweet?.commentCount ?? 0));
-
-    setComments([]);
-    setLikes([]);
-    setReposts([]);
-
-    setCommentsOpen(false);
-    setLikesOpen(false);
-    setRepostsOpen(false);
-
-    setShowCommentComposer(false);
-    setCommentText("");
-  }, [tweetId]);
 
   const closeLists = () => {
     setCommentsOpen(false);
@@ -121,19 +80,14 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
     setRepostsOpen(false);
   };
 
-  const openOnlyList = (panel) => {
-    setCommentsOpen(panel === "comments");
-    setLikesOpen(panel === "likes");
-    setRepostsOpen(panel === "reposts");
-    setMenuOpen(false);
-  };
-
   const loadComments = async () => {
     if (!tweetId) return;
     setLoadingComments(true);
     try {
       const data = await fetchComments(tweetId);
-      setComments(Array.isArray(data) ? data : []);
+      const arr = Array.isArray(data) ? data : [];
+      setComments(arr);
+      setCommentCount(arr.length);
     } catch {
       setComments([]);
     } finally {
@@ -146,7 +100,11 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
     setLoadingLikes(true);
     try {
       const data = await fetchLikes(tweetId);
-      setLikes(Array.isArray(data) ? data : []);
+      const arr = Array.isArray(data) ? data : [];
+      setLikes(arr);
+      setLikeCount(arr.length);
+      const mine = arr.some((x) => Number(x.userId) === meId);
+      setLiked(mine);
     } catch {
       setLikes([]);
     } finally {
@@ -159,7 +117,12 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
     setLoadingReposts(true);
     try {
       const data = await fetchRetweets(tweetId);
-      setReposts(Array.isArray(data) ? data : []);
+      const arr = Array.isArray(data) ? data : [];
+      setReposts(arr);
+      setRepostCount(arr.length);
+      const mine = arr.find((x) => Number(x.userId) === meId);
+      setReposted(Boolean(mine));
+      setRetweetId(mine?.id ?? null);
     } catch {
       setReposts([]);
     } finally {
@@ -167,94 +130,129 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
     }
   };
 
+  useEffect(() => {
+    const onDoc = (e) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  useEffect(() => {
+    loadLikes();
+    loadReposts();
+  }, [tweetId]);
+
+  const onCommentIconClick = async () => {
+    if (disabledActions) return requireAuth();
+    closeLists();
+    setShowCommentComposer(true);
+  };
+
   const onCommentsCountClick = async () => {
-    if (commentsOpen) {
-      setCommentsOpen(false);
-      return;
-    }
-    openOnlyList("comments");
+    closeLists();
+    setShowCommentComposer(false);
+    setCommentsOpen(true);
     await loadComments();
   };
 
   const onLikesCountClick = async () => {
-    if (likesOpen) {
-      setLikesOpen(false);
-      return;
-    }
-    openOnlyList("likes");
+    closeLists();
+    setShowCommentComposer(false);
+    setLikesOpen(true);
     await loadLikes();
   };
 
   const onRepostsCountClick = async () => {
-    if (repostsOpen) {
-      setRepostsOpen(false);
-      return;
-    }
-    openOnlyList("reposts");
+    closeLists();
+    setShowCommentComposer(false);
+    setRepostsOpen(true);
     await loadReposts();
-  };
-
-  const onCommentIconClick = async () => {
-    if (disabledActions) return requireAuth();
-    setShowCommentComposer((p) => !p);
   };
 
   const onLikeIconClick = async () => {
     if (disabledActions) return requireAuth();
-    if (!tweetId) return;
-
-    if (!liked) {
-      setLiked(true);
-      setLikeCount((c) => c + 1);
-      try {
-        await likeTweet(tweetId);
-        if (likesOpen) await loadLikes();
-      } catch {
-        setLiked(false);
-        setLikeCount((c) => Math.max(0, c - 1));
-      }
-      return;
-    }
-
-    setLiked(false);
-    setLikeCount((c) => Math.max(0, c - 1));
+    const next = !liked;
+    setLiked(next);
+    setLikeCount((c) => Math.max(0, c + (next ? 1 : -1)));
     try {
-      await dislikeTweet(tweetId);
+      if (next) await likeTweet(tweetId);
+      else await dislikeTweet(tweetId);
       if (likesOpen) await loadLikes();
     } catch {
-      setLiked(true);
-      setLikeCount((c) => c + 1);
+      setLiked(!next);
+      setLikeCount((c) => Math.max(0, c + (!next ? 1 : -1)));
     }
   };
 
   const onRepostIconClick = async () => {
     if (disabledActions) return requireAuth();
-    if (!tweetId) return;
-
-    if (!reposted) {
-      setReposted(true);
-      setRepostCount((c) => c + 1);
-      try {
-        const res = await createRetweet(tweetId);
-        const rid = res?.id ?? null;
-        setRetweetId(rid);
-        if (repostsOpen) await loadReposts();
-      } catch {
-        setReposted(false);
-        setRepostCount((c) => Math.max(0, c - 1));
-      }
-      return;
-    }
-
-    setReposted(false);
-    setRepostCount((c) => Math.max(0, c - 1));
+    const next = !reposted;
+    setReposted(next);
+    setRepostCount((c) => Math.max(0, c + (next ? 1 : -1)));
     try {
-      if (retweetId != null) await deleteRetweet(retweetId);
-      setRetweetId(null);
+      if (next) {
+        const res = await createRetweet(tweetId);
+        setRetweetId(res?.id ?? null);
+      } else {
+        if (retweetId != null) await deleteRetweet(retweetId);
+        else await loadReposts();
+        setRetweetId(null);
+      }
       if (repostsOpen) await loadReposts();
     } catch {
-      setReposted(true);
-      setRepostCount((c) => c + 1);
+      setReposted(!next);
+      setRepostCount((c) => Math.max(0, c + (!next ? 1 : -1)));
+    }
+  };
+
+  const onDeleteTweet = async () => {
+    if (disabledActions) return requireAuth();
+    try {
+      await deleteTweet(tweetId);
+      onDeleted?.(tweetId);
+    } finally {
+      setMenuOpen(false);
+    }
+  };
+
+  const onSubmitComment = async () => {
+    if (disabledActions) return requireAuth();
+    const content = commentText.trim();
+    if (!content || !tweetId) return;
+
+    try {
+      const created = await createComment(tweetId, content);
+      setCommentText("");
+      setShowCommentComposer(false);
+      setCommentsOpen(true);
+      setCommentCount((c) => c + 1);
+      setComments((prev) => {
+        const arr = Array.isArray(prev) ? prev : [];
+        return [created, ...arr];
+      });
+      await loadComments();
+    } catch {
+      await loadComments();
+    }
+  };
+
+  const canDeleteComment = (c) => {
+    if (!c?.id) return false;
+    const cid = Number(c.userId);
+    const ownerId = Number(tweet?.userId);
+    return Boolean(meId && (cid === meId || ownerId === meId));
+  };
+
+  const onDeleteCommentClick = async (commentId) => {
+    if (disabledActions) return requireAuth();
+    try {
+      await deleteComment(commentId);
+      setComments((prev) => (Array.isArray(prev) ? prev.filter((x) => x.id !== commentId) : prev));
+      setCommentCount((c) => Math.max(0, c - 1));
+    } catch {
+      await loadComments();
     }
   };
 
@@ -267,13 +265,6 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
     }
   }, [tweetId]);
 
-  const onCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(tweetUrl || window.location.href);
-    } catch {}
-    setMenuOpen(false);
-  };
-
   const onShare = async () => {
     if (disabledActions) return requireAuth();
     try {
@@ -282,36 +273,11 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
     setMenuOpen(false);
   };
 
-  const onDelete = () => {
-    if (disabledActions) return requireAuth();
-    onDeleted?.(tweetId);
-    setMenuOpen(false);
-  };
-
-  const onSubmitComment = async () => {
-    if (disabledActions) return requireAuth();
-    const content = commentText.trim();
-    if (!content || !tweetId) return;
-
-    try {
-      const created = await createComment(tweetId, content);
-      setCommentText("");
-      setCommentCount((c) => c + 1);
-
-      if (commentsOpen) {
-        setComments((prev) => {
-          const arr = Array.isArray(prev) ? prev : [];
-          return [created, ...arr];
-        });
-      }
-    } catch {}
-  };
-
   const menuItems = useMemo(() => {
-    const items = [{ key: "copy", label: tSafe("tweet.copyLink", "Copy link"), onClick: onCopyLink }];
-    if (isMine) items.unshift({ key: "del", label: tSafe("tweet.delete", "Delete"), danger: true, onClick: onDelete });
+    const items = [{ key: "copy", label: tSafe("tweet.copyLink", "Copy link"), onClick: onShare }];
+    if (isMine) items.unshift({ key: "del", label: tSafe("tweet.delete", "Delete"), danger: true, onClick: onDeleteTweet });
     return items;
-  }, [isMine, lang, t]);
+  }, [isMine, t, retweetId, tweetId]);
 
   const showDetails = showCommentComposer || commentsOpen || likesOpen || repostsOpen;
 
@@ -324,7 +290,7 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
           <div className="xTweetName">{authorName}</div>
           <div className="xTweetHandle">@{authorHandle}</div>
           <div className="xTweetDot">·</div>
-          <div className="xTweetTime">{timeAgo(createdAt)}</div>
+          <div className="xTweetTime">{timeAgo(tweet?.createdAt)}</div>
 
           <button className="xMoreBtn" type="button" onClick={() => setMenuOpen((p) => !p)} aria-label="More">
             <FiMoreHorizontal size={18} />
@@ -347,70 +313,37 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
           ) : null}
         </div>
 
-        {bodyText ? <div className="xTweetText">{bodyText}</div> : null}
+        {tweet?.content ? <div className="xTweetText">{tweet.content}</div> : null}
 
         <div className="xTweetActions">
-          <button
-            className="xActBtn"
-            type="button"
-            data-action="comment"
-            onClick={onCommentIconClick}
-            aria-label="Reply"
-          >
-            <FiMessageCircle size={18} />
-            <span
-              className="xActCount isClickable"
-              onClick={(e) => {
-                e.stopPropagation();
-                onCommentsCountClick();
-              }}
-              title="View replies"
-            >
+          <div className="xActGroup">
+            <button className="xActBtn" type="button" onClick={onCommentIconClick} aria-label="Reply">
+              <FiMessageCircle size={18} />
+            </button>
+            <button className="xActCountBtn" type="button" onClick={onCommentsCountClick} aria-label="View replies">
               {commentCount}
-            </span>
-          </button>
+            </button>
+          </div>
 
-          <button
-            className={`xActBtn ${reposted ? "isReposted" : ""}`}
-            type="button"
-            data-action="retweet"
-            onClick={onRepostIconClick}
-            aria-label="Repost"
-          >
-            <FiRepeat size={18} />
-            <span
-              className="xActCount isClickable"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRepostsCountClick();
-              }}
-              title="View reposts"
-            >
+          <div className="xActGroup">
+            <button className={`xActBtn ${reposted ? "isReposted" : ""}`} type="button" onClick={onRepostIconClick} aria-label="Repost">
+              <FiRepeat size={18} />
+            </button>
+            <button className="xActCountBtn" type="button" onClick={onRepostsCountClick} aria-label="View reposts">
               {repostCount}
-            </span>
-          </button>
+            </button>
+          </div>
 
-          <button
-            className={`xActBtn ${liked ? "isLiked" : ""}`}
-            type="button"
-            data-action="like"
-            onClick={onLikeIconClick}
-            aria-label="Like"
-          >
-            <FiHeart size={18} />
-            <span
-              className="xActCount isClickable"
-              onClick={(e) => {
-                e.stopPropagation();
-                onLikesCountClick();
-              }}
-              title="View likes"
-            >
+          <div className="xActGroup">
+            <button className={`xActBtn ${liked ? "isLiked" : ""}`} type="button" onClick={onLikeIconClick} aria-label="Like">
+              <FiHeart size={18} />
+            </button>
+            <button className="xActCountBtn" type="button" onClick={onLikesCountClick} aria-label="View likes">
               {likeCount}
-            </span>
-          </button>
+            </button>
+          </div>
 
-          <button className="xActBtn" type="button" data-action="share" onClick={onShare} aria-label="Share">
+          <button className="xActBtn" type="button" onClick={onShare} aria-label="Share">
             <FiShare size={18} />
           </button>
         </div>
@@ -455,7 +388,14 @@ export default function TweetCard({ tweet, disabledActions, onRequireAuth, onDel
                 <div className="xDetailList">
                   {comments.map((c) => (
                     <div key={c.id} className="xDetailItem">
-                      <div className="xDetailTitle">@{(c.username || "user").toLowerCase()}</div>
+                      <div className="xDetailTitleRow">
+                        <div className="xDetailTitle">@{(c.username || "user").toLowerCase()}</div>
+                        {canDeleteComment(c) ? (
+                          <button className="xMiniDangerBtn" type="button" onClick={() => onDeleteCommentClick(c.id)}>
+                            {tSafe("common.delete", "Delete")}
+                          </button>
+                        ) : null}
+                      </div>
                       <div className="xDetailText">{c.content}</div>
                     </div>
                   ))}

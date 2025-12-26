@@ -69,6 +69,7 @@ public class LikeServiceImpl implements LikeService {
     public List<LikeResponseDto> findByTweetId(Long tweetId) {
         tweetRepository.findById(tweetId)
                 .orElseThrow(() -> new NotFoundException("Tweet not found, id : " + tweetId));
+
         return tweetLikeRepository.findByTweet_IdOrderByCreatedAtDesc(tweetId)
                 .stream()
                 .map(likeMapper::toResponseDto)

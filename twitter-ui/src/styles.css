@@ -1083,13 +1083,6 @@ textarea {
   font-size: 12px;
 }
 
-.xComposeError {
-  color: var(--red);
-  font-weight: 800;
-  font-size: 12px;
-  margin-top: 10px;
-}
-
 .xModalPrimary {
   height: 44px;
   border-radius: 999px;
@@ -1596,4 +1589,29 @@ textarea {
 .xDetailText {
   font-size: 14px;
   color: var(--text);
+}
+
+
+.xDetailItemTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.xMiniDanger {
+  background: transparent;
+  border: 1px solid var(--menu-border);
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.xMiniDanger:hover {
+  background: rgba(244, 33, 46, 0.12);
+  border-color: rgba(244, 33, 46, 0.35);
 }

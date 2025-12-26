@@ -35,13 +35,21 @@ export default function App() {
 
   const isAuthed = useMemo(() => Boolean(user?.token || localStorage.getItem("token")), [user]);
 
+  if (!isAuthed) {
+    return (
+      <Routes>
+        <Route path="/auth" element={<AuthPage user={user} setUser={setUser} />} />
+        <Route path="*" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
-      <Route path="/auth" element={<AuthPage user={user} setUser={setUser} />} />
+      <Route path="/auth" element={<Navigate to="/" replace />} />
 
       <Route element={<Layout user={user} setUser={setUser} />}>
         <Route index element={<HomePage />} />
-
         <Route path="/explore" element={<ExplorePage isAuthed={isAuthed} />} />
         <Route path="/notifications" element={<NotificationsPage isAuthed={isAuthed} />} />
         <Route path="/messages" element={<MessagesPage isAuthed={isAuthed} />} />
@@ -51,7 +59,6 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage isAuthed={isAuthed} />} />
         <Route path="/more" element={<MorePage isAuthed={isAuthed} setUser={setUser} />} />
         <Route path="/admin" element={<AdminDashboard />} />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

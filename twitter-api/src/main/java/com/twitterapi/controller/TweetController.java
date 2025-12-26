@@ -39,6 +39,11 @@ public class TweetController {
         return tweetService.findById(resolved);
     }
 
+    @GetMapping("/all")
+    public List<TweetResponseDto> findAll() {
+        return tweetService.findAll();
+    }
+
     @PutMapping("/{id}")
     public TweetResponseDto update(@AuthenticationPrincipal AuthUserDetails userDetails,
                                    @PathVariable("id") Long id,

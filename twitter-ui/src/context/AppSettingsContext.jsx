@@ -31,6 +31,7 @@ const dict = {
       logout: "Çıkış yap",
       followBtn: "Takip et",
       unfollowBtn: "Takipten çık",
+      home: { empty: "Henüz gönderi yok." },
     },
     auth: {
       happeningNow: "Neler oluyor?",
@@ -121,6 +122,7 @@ const dict = {
       logout: "Log out",
       followBtn: "Follow",
       unfollowBtn: "Following",
+      home: { empty: "No posts yet." },
     },
     auth: {
       happeningNow: "What’s happening?",

@@ -1,16 +1,14 @@
 package com.twitterapi.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.twitterapi.exceptions.TwitterErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Map;
 
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -21,14 +19,16 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException {
 
-        TwitterErrorResponse res = new TwitterErrorResponse();
-        res.setStatus(HttpStatus.UNAUTHORIZED.value());
-        res.setMessage("Devam etmek için giriş yap");
-        res.setTimestamp(System.currentTimeMillis());
-        res.setLocalDateTime(LocalDateTime.now());
-
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        objectMapper.writeValue(response.getOutputStream(), res);
+
+        String msg = authException.getMessage();
+        if (msg != null && msg.toLowerCase().contains("bad credentials")) {
+            msg = "Kullanıcı adı veya şifre yanlış";
+        } else if (msg == null || msg.isBlank()) {
+            msg = "Yetkisiz erişim";
+        }
+
+        objectMapper.writeValue(response.getOutputStream(), Map.of("message", msg));
     }
 }

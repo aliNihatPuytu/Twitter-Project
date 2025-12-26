@@ -5,6 +5,6 @@ import com.twitterapi.dto.request.RegisterRequestDto;
 import com.twitterapi.dto.response.AuthResponseDto;
 
 public interface AuthService {
-    AuthResponseDto register(RegisterRequestDto request);
-    AuthResponseDto login(LoginRequestDto request);
+    AuthResponseDto register(RegisterRequestDto dto);
+    AuthResponseDto login(LoginRequestDto dto);
 }

@@ -11,71 +11,80 @@ import com.twitterapi.mapper.TweetMapper;
 import com.twitterapi.repository.TweetRepository;
 import com.twitterapi.repository.UserRepository;
 import com.twitterapi.service.TweetService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class TweetServiceImpl implements TweetService {
 
-    @Autowired
     private final TweetRepository tweetRepository;
-
-    @Autowired
     private final UserRepository userRepository;
 
-    @Autowired
-    private final TweetMapper tweetMapper;
+    public TweetServiceImpl(TweetRepository tweetRepository, UserRepository userRepository) {
+        this.tweetRepository = tweetRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
-    public TweetResponseDto create(Long userId, TweetCreateRequestDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found, id : " + userId));
+    public TweetResponseDto create(Long authUserId, TweetCreateRequestDto dto) {
+        User user = userRepository.findById(authUserId)
+                .orElseThrow(() -> new NotFoundException("User bulunamadı"));
 
-        Tweet tweet = tweetMapper.toEntity(dto, user);
-        tweetRepository.save(tweet);
-        return tweetMapper.toResponseDto(tweet);
+        Tweet t = new Tweet();
+        t.setUser(user);
+        t.setContent(dto.content());
+        t.setCreatedAt(LocalDateTime.now());
+
+        Tweet saved = tweetRepository.save(t);
+        return TweetMapper.toDto(saved);
     }
 
     @Override
     public List<TweetResponseDto> findByUserId(Long userId) {
         return tweetRepository.findByUser_IdOrderByCreatedAtDesc(userId)
                 .stream()
-                .map(tweetMapper::toResponseDto)
+                .map(TweetMapper::toDto)
                 .toList();
     }
 
     @Override
     public TweetResponseDto findById(Long tweetId) {
         Tweet tweet = tweetRepository.findById(tweetId)
-                .orElseThrow(() -> new NotFoundException("Tweet not found, id : " + tweetId));
-        return tweetMapper.toResponseDto(tweet);
+                .orElseThrow(() -> new NotFoundException("Tweet bulunamadı"));
+        return TweetMapper.toDto(tweet);
     }
 
     @Override
-    public TweetResponseDto update(Long userId, Long tweetId, TweetUpdateRequestDto dto) {
-        Tweet tweet = tweetRepository.findById(tweetId)
-                .orElseThrow(() -> new NotFoundException("Tweet not found, id : " + tweetId));
+    public List<TweetResponseDto> findAll() {
+        return tweetRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(TweetMapper::toDto)
+                .toList();
+    }
 
-        if (!tweet.getUser().getId().equals(userId)) {
-            throw new ForbiddenException("Only tweet owner can update");
+    @Override
+    public TweetResponseDto update(Long authUserId, Long tweetId, TweetUpdateRequestDto dto) {
+        Tweet tweet = tweetRepository.findById(tweetId)
+                .orElseThrow(() -> new NotFoundException("Tweet bulunamadı"));
+
+        if (tweet.getUser() == null || !tweet.getUser().getId().equals(authUserId)) {
+            throw new ForbiddenException("Bu tweet’i güncelleyemezsiniz");
         }
 
-        tweet.setContent(dto.content());
-        tweetRepository.save(tweet);
-        return tweetMapper.toResponseDto(tweet);
+        TweetMapper.updateEntity(tweet, dto);
+        Tweet saved = tweetRepository.save(tweet);
+        return TweetMapper.toDto(saved);
     }
 
     @Override
-    public void delete(Long userId, Long tweetId) {
+    public void delete(Long authUserId, Long tweetId) {
         Tweet tweet = tweetRepository.findById(tweetId)
-                .orElseThrow(() -> new NotFoundException("Tweet not found, id : " + tweetId));
+                .orElseThrow(() -> new NotFoundException("Tweet bulunamadı"));
 
-        if (!tweet.getUser().getId().equals(userId)) {
-            throw new ForbiddenException("Only tweet owner can delete");
+        if (tweet.getUser() == null || !tweet.getUser().getId().equals(authUserId)) {
+            throw new ForbiddenException("Bu tweet’i silemezsiniz");
         }
 
         tweetRepository.delete(tweet);

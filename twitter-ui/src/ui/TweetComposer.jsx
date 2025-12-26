@@ -88,71 +88,96 @@ export default function TweetComposer({ disabled, onRequireAuth, onPosted, me })
   const mediaClass =
     mediaUrls.length === 1 ? "c1" : mediaUrls.length === 2 ? "c2" : mediaUrls.length === 3 ? "c3" : "c4";
 
-  const tSafe2 = (key, fallback) => {
-    const v = t?.(key);
-    return v && v !== key ? v : fallback;
-  };
-
   return (
-    <div className="xComposerWrap">
-      <div className="xComposer">
-        <div className="xComposerAvatar" aria-hidden="true">
-          {String(me?.username || "U").slice(0, 1).toUpperCase()}
-        </div>
+    <div className="xComposer">
+      <div className="xComposerRow">
+        <div className="xAvatarSm" aria-hidden="true" />
 
         <div className="xComposerMain">
           <textarea
             ref={textareaRef}
             className="xComposerInput"
-            placeholder={tSafe2("tweet.whatsHappening", lang === "tr" ? "Neler oluyor?" : "What’s happening?")}
+            placeholder={tSafe("common.whatsHappening", lang === "tr" ? "Neler oluyor?" : "What’s happening?")}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
 
           {panel === "poll" ? (
-            <div className="xPoll">
-              <input className="xPollInput" value={poll.q} onChange={(e) => setPoll((p) => ({ ...p, q: e.target.value }))} />
-              <div className="xPollRow">
-                <input className="xPollInput" value={poll.a} onChange={(e) => setPoll((p) => ({ ...p, a: e.target.value }))} />
-                <input className="xPollInput" value={poll.b} onChange={(e) => setPoll((p) => ({ ...p, b: e.target.value }))} />
+            <div className="xMiniPanel">
+              <div className="xMiniRow">
+                <div className="xMiniCol">
+                  <div className="xMiniHint">{lang === "tr" ? "Soru" : "Question"}</div>
+                  <input
+                    className="xCommentInput"
+                    value={poll.q}
+                    onChange={(e) => setPoll((p) => ({ ...p, q: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="xMiniRow">
+                <div className="xMiniCol">
+                  <div className="xMiniHint">{lang === "tr" ? "Seçenek 1" : "Option 1"}</div>
+                  <input
+                    className="xCommentInput"
+                    value={poll.a}
+                    onChange={(e) => setPoll((p) => ({ ...p, a: e.target.value }))}
+                  />
+                </div>
+                <div className="xMiniCol">
+                  <div className="xMiniHint">{lang === "tr" ? "Seçenek 2" : "Option 2"}</div>
+                  <input
+                    className="xCommentInput"
+                    value={poll.b}
+                    onChange={(e) => setPoll((p) => ({ ...p, b: e.target.value }))}
+                  />
+                </div>
               </div>
             </div>
           ) : null}
 
           {panel === "emoji" ? (
-            <div className="xEmojiGrid">
-              {["😀", "😂", "🥹", "😎", "🔥", "✨", "💡", "🎯", "💙", "💚", "💗", "🙏"].map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  className="xEmojiBtn"
-                  onClick={() => {
-                    setPickedEmoji(e);
-                    setPanel(null);
-                  }}
-                >
-                  {e}
-                </button>
-              ))}
+            <div className="xMiniPanel">
+              <div className="xChipRow">
+                {["😀", "😂", "🥹", "😎", "🔥", "✨", "💡", "🎯", "💙", "💚", "💗", "🙏"].map((e) => (
+                  <button
+                    key={e}
+                    type="button"
+                    className="xChip"
+                    onClick={() => {
+                      setPickedEmoji(e);
+                      setPanel(null);
+                    }}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : null}
 
           {panel === "schedule" ? (
-            <div className="xSchedule">
-              <input className="xScheduleInput" type="datetime-local" value={schedule} onChange={(e) => setSchedule(e.target.value)} />
+            <div className="xMiniPanel">
+              <div className="xMiniHint">{lang === "tr" ? "Zamanla" : "Schedule"}</div>
+              <input
+                className="xCommentInput"
+                type="datetime-local"
+                value={schedule}
+                onChange={(e) => setSchedule(e.target.value)}
+              />
             </div>
           ) : null}
 
           {panel === "location" ? (
-            <div className="xLocation">
-              <input className="xLocationInput" value={location} onChange={(e) => setLocation(e.target.value)} />
+            <div className="xMiniPanel">
+              <div className="xMiniHint">{lang === "tr" ? "Konum" : "Location"}</div>
+              <input className="xCommentInput" value={location} onChange={(e) => setLocation(e.target.value)} />
             </div>
           ) : null}
 
           {mediaUrls.length ? (
             <div className={`xMediaGrid ${mediaClass}`}>
               {mediaUrls.map((url) => (
-                <div key={url} className="xMediaItem">
+                <div key={url} className="xMediaCell">
                   <img src={url} alt="" className="xMediaImg" />
                   <button className="xMediaRemove" type="button" onClick={() => removeMedia(url)}>
                     <FiX />
@@ -165,7 +190,7 @@ export default function TweetComposer({ disabled, onRequireAuth, onPosted, me })
           {error ? <div className="xComposeError">{error}</div> : null}
 
           <div className="xComposerBottom">
-            <div className="xComposerActions">
+            <div className="xChipRow">
               <button className="xIconBtn" type="button" onClick={() => fileRef.current?.click()}>
                 <FiImage />
               </button>
@@ -175,10 +200,18 @@ export default function TweetComposer({ disabled, onRequireAuth, onPosted, me })
               <button className="xIconBtn" type="button" onClick={() => setPanel((p) => (p === "emoji" ? null : "emoji"))}>
                 <FiSmile />
               </button>
-              <button className="xIconBtn" type="button" onClick={() => setPanel((p) => (p === "schedule" ? null : "schedule"))}>
+              <button
+                className="xIconBtn"
+                type="button"
+                onClick={() => setPanel((p) => (p === "schedule" ? null : "schedule"))}
+              >
                 <FiCalendar />
               </button>
-              <button className="xIconBtn" type="button" onClick={() => setPanel((p) => (p === "location" ? null : "location"))}>
+              <button
+                className="xIconBtn"
+                type="button"
+                onClick={() => setPanel((p) => (p === "location" ? null : "location"))}
+              >
                 <FiMapPin />
               </button>
 
@@ -186,7 +219,7 @@ export default function TweetComposer({ disabled, onRequireAuth, onPosted, me })
             </div>
 
             <button className="xSendBtn" type="button" onClick={post} disabled={disabled || !canPost || sending}>
-              {tSafe2("common.post", lang === "tr" ? "Gönder" : "Post")}
+              {tSafe("common.post", lang === "tr" ? "Gönder" : "Post")}
             </button>
           </div>
         </div>

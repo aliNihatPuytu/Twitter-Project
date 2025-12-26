@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll()
                         .requestMatchers(HttpMethod.GET,
+                                "/tweet/all",
                                 "/tweet/findByUserId",
                                 "/tweet/findById",
                                 "/comment/byTweetId",

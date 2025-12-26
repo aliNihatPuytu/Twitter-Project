@@ -7,9 +7,10 @@ import com.twitterapi.dto.response.TweetResponseDto;
 import java.util.List;
 
 public interface TweetService {
-    TweetResponseDto create(Long userId, TweetCreateRequestDto dto);
+    TweetResponseDto create(Long authUserId, TweetCreateRequestDto dto);
     List<TweetResponseDto> findByUserId(Long userId);
     TweetResponseDto findById(Long tweetId);
-    TweetResponseDto update(Long userId, Long tweetId, TweetUpdateRequestDto dto);
-    void delete(Long userId, Long tweetId);
+    List<TweetResponseDto> findAll();
+    TweetResponseDto update(Long authUserId, Long tweetId, TweetUpdateRequestDto dto);
+    void delete(Long authUserId, Long tweetId);
 }

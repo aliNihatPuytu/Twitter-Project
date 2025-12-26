@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const baseURL = (import.meta.env.VITE_API_URL || "/api").replace(/\/+$/, "");
+const baseURL = import.meta.env.VITE_API_URL || "/api";
 
 const api = axios.create({
   baseURL,
-  headers: { "Content-Type": "application/json" },
 });
 
 api.interceptors.request.use((config) => {
@@ -14,3 +13,4 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+export { api };

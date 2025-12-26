@@ -1,131 +1,104 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import api from "../api";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useAppSettings } from "../context/AppSettingsContext.jsx";
+import { fetchAllTweets, fetchMe } from "../services/tweetApi.js";
 import TweetComposer from "../ui/TweetComposer.jsx";
 import TweetCard from "../ui/TweetCard.jsx";
-import { useAppSettings } from "../context/AppSettingsContext.jsx";
-
-function getFollowed() {
-  try {
-    const raw = localStorage.getItem("followedUsers");
-    const arr = JSON.parse(raw || "[]");
-    return Array.isArray(arr) ? arr : [];
-  } catch {
-    return [];
-  }
-}
 
 export default function HomePage() {
-  const { isAuthed, user, openAuth } = useOutletContext();
-  const { t } = useAppSettings();
+  const { lang } = useAppSettings();
+  const navigate = useNavigate();
 
   const [tab, setTab] = useState("forYou");
+  const [me, setMe] = useState(null);
   const [tweets, setTweets] = useState([]);
-  const [scrolled, setScrolled] = useState(false);
-  const [followed, setFollowed] = useState(() => getFollowed());
-
-  const feedUserId = useMemo(() => {
-    const stored = localStorage.getItem("lastFeedUserId");
-    const meId = localStorage.getItem("userId");
-    return stored || meId || "1";
-  }, []);
-
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  const visibleTweets = useMemo(() => {
-    if (tab === "following") {
-      if (!followed?.length) return [];
-      return tweets.filter((tw) => followed.includes(Number(tw.userId ?? tw.user?.id ?? tw.user?.userId)));
-    }
-    return tweets;
-  }, [tab, tweets, followed]);
+  const isAuthed = useMemo(() => {
+    const token = localStorage.getItem("token");
+    return !!token;
+  }, []);
 
-  const load = useCallback(async () => {
-    setErr("");
-    setLoading(true);
+  useEffect(() => {
+    if (!isAuthed) {
+      navigate("/auth", { replace: true });
+      return;
+    }
+
+    (async () => {
+      try {
+        setErr("");
+        const data = await fetchMe();
+        setMe(data);
+      } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("username");
+        localStorage.removeItem("roles");
+        navigate("/auth", { replace: true });
+      }
+    })();
+  }, [isAuthed, navigate]);
+
+  const load = async () => {
     try {
-      const res = await api.get("/tweet/findByUserId", { params: { userId: Number(feedUserId) } });
-      setTweets(Array.isArray(res?.data) ? res.data : []);
-      localStorage.setItem("lastFeedUserId", String(feedUserId));
-      setFollowed(getFollowed());
+      setLoading(true);
+      setErr("");
+      const list = await fetchAllTweets();
+      setTweets(Array.isArray(list) ? list : []);
     } catch (e) {
-      const msg = e?.response?.data?.message || e?.message || "Network error";
+      const msg = e?.response?.data?.message || e?.response?.data?.error || e?.message || "Network error";
       setErr(msg);
+      setTweets([]);
     } finally {
       setLoading(false);
     }
-  }, [feedUserId]);
+  };
 
   useEffect(() => {
+    if (!isAuthed) return;
     load();
-  }, [load]);
+  }, [isAuthed]);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 6);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const onPosted = async () => {
-    await load();
+  const onPosted = (created) => {
+    if (!created) return;
+    setTweets((prev) => [created, ...(Array.isArray(prev) ? prev : [])]);
+    load();
   };
 
-  const onDeleted = async (id) => {
-    if (!id) return;
-    try {
-      await api.delete(`/tweet/${id}`);
-      setTweets((prev) => prev.filter((tw) => (tw.id ?? tw.tweetId ?? tw._id) !== id));
-    } catch {}
+  const onDeleted = (tweetId) => {
+    setTweets((prev) => (Array.isArray(prev) ? prev.filter((x) => x.id !== tweetId) : prev));
   };
+
+  const showEmpty = !loading && !err && Array.isArray(tweets) && tweets.length === 0;
+  const emptyText = lang === "tr" ? "Henüz gönderi yok." : "No posts yet.";
 
   return (
-    <div className="xCenterCol">
-      <div className={`xCenterHeader ${scrolled ? "isScrolled" : ""}`}>
-        <div className="xTabs">
-          <button
-            className={`xTab ${tab === "forYou" ? "isActive" : ""}`}
-            type="button"
-            onClick={() => setTab("forYou")}
-          >
-            {t("common.forYou")}
-          </button>
+    <div className="xHome">
+      <div className="xTabs">
+        <button type="button" className={`xTab ${tab === "forYou" ? "active" : ""}`} onClick={() => setTab("forYou")}>
+          {lang === "tr" ? "Sana özel" : "For you"}
+        </button>
 
-          <button
-            className={`xTab ${tab === "following" ? "isActive" : ""}`}
-            type="button"
-            onClick={() => setTab("following")}
-          >
-            {t("common.following")}
-          </button>
-        </div>
+        <button type="button" className={`xTab ${tab === "following" ? "active" : ""}`} onClick={() => setTab("following")}>
+          {lang === "tr" ? "Takip" : "Following"}
+        </button>
       </div>
 
-      <TweetComposer disabled={!isAuthed} onRequireAuth={openAuth} onPosted={onPosted} me={user} />
+      <TweetComposer disabled={false} onRequireAuth={null} onPosted={onPosted} me={me} />
 
-      {err ? <div className="xInlineError">{err}</div> : null}
-      {loading ? <div className="xLoading">{t("common.loading")}</div> : null}
+      {loading ? <div className="xInfo">...</div> : null}
+      {err ? <div className="xError">{err}</div> : null}
 
-      {!loading && visibleTweets.length ? (
-        <div className="xFeed">
-          {visibleTweets.map((tw) => (
-            <TweetCard
-              key={tw.id ?? tw.tweetId ?? tw._id ?? Math.random()}
-              tweet={tw}
-              me={user}
-              isAuthed={isAuthed}
-              onRequireAuth={openAuth}
-              onDeleted={onDeleted}
-            />
-          ))}
-        </div>
-      ) : null}
+      {showEmpty ? <div className="xInfo">{emptyText}</div> : null}
 
-      {!loading && !visibleTweets.length && !isAuthed ? (
-        <button className="xGuestHint" type="button" onClick={() => openAuth("signin")}>
-          {t("common.continueSignIn")}
-        </button>
-      ) : null}
+      <div className="xFeed">
+        {(Array.isArray(tweets) ? tweets : []).map((tw) => (
+          <TweetCard key={tw.id} tweet={tw} disabledActions={false} onRequireAuth={null} onDeleted={onDeleted} />
+        ))}
+      </div>
     </div>
   );
 }

@@ -9,9 +9,9 @@ import com.twitterapi.mapper.UserMapper;
 import com.twitterapi.repository.UserRepository;
 import com.twitterapi.security.JwtService;
 import com.twitterapi.service.AuthService;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,8 +58,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto dto) {
+        String identifier = dto.username();
+        String resolvedUsername = identifier;
+
+        if (identifier != null && identifier.contains("@")) {
+            resolvedUsername = userRepository.findByEmail(identifier)
+                    .map(User::getUsername)
+                    .orElse(identifier);
+        }
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
+                new UsernamePasswordAuthenticationToken(resolvedUsername, dto.password())
         );
 
         Object principal = authentication.getPrincipal();
@@ -71,8 +80,7 @@ public class AuthServiceImpl implements AuthService {
             return userMapper.toAuthResponse(token, u);
         }
 
-        User user = userRepository.findByUsername(dto.username())
-                .or(() -> userRepository.findByEmail(dto.username()))
+        User user = userRepository.findByUsername(resolvedUsername)
                 .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"));
 
         String token = jwtService.generateToken(user.getId(), user.getUsername());

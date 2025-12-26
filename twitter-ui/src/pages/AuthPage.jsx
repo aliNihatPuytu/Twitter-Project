@@ -6,7 +6,7 @@ import xDark from "../assets/twitter-dark.png";
 import xLight from "../assets/twitter-light.png";
 
 export default function AuthPage({ user, setUser }) {
-  const { t, theme } = useAppSettings();
+  const { t, theme, lang } = useAppSettings();
   const navigate = useNavigate();
   const logo = theme === "dark" ? xDark : xLight;
 
@@ -16,16 +16,19 @@ export default function AuthPage({ user, setUser }) {
   const isAuthed = useMemo(() => Boolean(user?.token || localStorage.getItem("token")), [user]);
 
   const onAuth = (payload) => {
-const token = payload?.token || localStorage.getItem("token");
+    const token = payload?.token || localStorage.getItem("token") || "";
+    const storedId = Number(localStorage.getItem("userId") || "0");
+    const userId = payload?.userId ?? (storedId || null);
+    const username = payload?.username || localStorage.getItem("username") || "user";
 
-const storedId = Number(localStorage.getItem("userId") || "0");
-const userId = payload?.userId ?? (Number(localStorage.getItem("userId") || "0") || null);npm
+    if (token) {
+      setUser?.({ token, userId, username });
+      setOpen(false);
+      navigate("/");
+      return;
+    }
 
-const username = payload?.username || localStorage.getItem("username") || "user";
-
-setUser?.(token ? { token, userId, username } : null);
-setOpen(false);
-    navigate("/");
+    setUser?.(null);
   };
 
   if (isAuthed) {
@@ -56,7 +59,36 @@ setOpen(false);
               {t("auth.createAccount")}
             </button>
 
+            <div className="xAuthFinePrint">
+              {lang === "en" ? (
+                <>
+                  By signing up, you agree to the{" "}
+                  <button className="xInlineLink" type="button">
+                    Terms of Service
+                  </button>{" "}
+                  and{" "}
+                  <button className="xInlineLink" type="button">
+                    Privacy Policy
+                  </button>
+                  .
+                </>
+              ) : (
+                <>
+                  Kaydolarak{" "}
+                  <button className="xInlineLink" type="button">
+                    Hizmet Şartları
+                  </button>{" "}
+                  ve{" "}
+                  <button className="xInlineLink" type="button">
+                    Gizlilik Politikası
+                  </button>{" "}
+                  ’nı kabul etmiş olursun.
+                </>
+              )}
+            </div>
+
             <div className="xAuthSubTitle">{t("auth.alreadyHave")}</div>
+
             <button
               className="xAuthOutlineBtn"
               type="button"
